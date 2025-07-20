@@ -208,6 +208,8 @@ The API includes hypermedia links to help with navigation:
 
 ## Testing
 
+### Unit and Integration Tests
+
 Run the test suite:
 
 ```bash
@@ -218,6 +220,65 @@ Run integration tests:
 
 ```bash
 npm run test:integration
+```
+
+### API Testing with Bruno
+
+This repository includes a Bruno collection for testing the API endpoints. Bruno is a fast and lightweight API client that can be used as an alternative to Postman.
+
+#### Setup Bruno
+
+1. Install Bruno from [https://www.usebruno.com/](https://www.usebruno.com/)
+
+2. Open Bruno and import the collection:
+   - Click "Open Collection"
+   - Navigate to `external/bruno-collection/Staples Checker`
+   - Select the folder to import the collection
+
+#### Using the Bruno Collection
+
+The collection includes tests for all major API endpoints:
+
+- **Create Item List** - Creates a new item list and stores the ID in a variable
+- **Get Item List** - Retrieves an item list by ID
+- **Delete Item List** - Deletes an item list
+- **Add Item** - Adds items to a list
+- **Get Items** - Retrieves all items from a list
+- **Filter Items** - Filters items by status (Low, Out)
+- **Update Item List** - Updates an item's status
+
+#### Running the Tests
+
+1. Start your application:
+
+   ```bash
+   docker-compose up --build -d
+   ```
+
+2. In Bruno, run the requests in sequence:
+   - Start with "Create Item List" to generate an `item-list-id` variable
+   - The other requests will use this variable automatically
+   - You can run individual requests or the entire collection
+
+#### Variables
+
+The Bruno collection uses the following variables:
+
+- `item-list-id` - Automatically set when creating an item list
+- Base URL is set to `http://localhost:3000`
+
+#### Collection Structure
+
+```
+external/bruno-collection/Staples Checker/
+├── bruno.json              # Collection configuration
+├── Create Item List.bru     # POST /item-lists
+├── Get Item List.bru        # GET /item-lists/{id}
+├── Delete Item List.bru     # DELETE /item-lists/{id}
+├── Add Item.bru             # POST /item-lists/{id}/items
+├── Get Items.bru            # GET /item-lists/{id}/items
+├── Filter Items.bru         # GET /item-lists/{id}/items?statuses=Low,Out
+└── Update Item List.bru     # PATCH /item-lists/{id}/items/{itemName}
 ```
 
 ## Development

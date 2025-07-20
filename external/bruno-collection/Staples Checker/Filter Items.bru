@@ -5,21 +5,11 @@ meta {
 }
 
 get {
-  url: http://localhost:3000/item-lists/{{item-list-id}}/items?filter?statuses=Low
+  url: http://localhost:3000/item-lists/{{item-list-id}}/items?statuses=Low,Out
   body: json
   auth: inherit
 }
 
 params:query {
-  filter?statuses: Low
-}
-
-body:json {
-  {
-    "items": [
-      {
-        "name": "Garlic2"
-      }
-    ]
-  }
+  statuses: Low,Out
 }
