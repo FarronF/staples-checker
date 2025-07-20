@@ -1,0 +1,39 @@
+{
+  "name": "staples-checker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:domain": "jest src/core/domain/__tests__",
+    "test:application": "jest src/core/application/__tests__",
+    "test:infrastructure": "jest src/infrastructure/__tests__",
+    "test:presentation": "jest src/presentation/__tests__",
+    "test:integration": "jest src/__tests__/integration"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "express": "^5.1.0",
+    "joi": "^17.13.3",
+    "mongodb": "^6.17.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.13",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.0.4",
+    "mongodb-memory-server": "^10.1.4",
+    "supertest": "^7.1.3",
+    "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3"
+  }
+}

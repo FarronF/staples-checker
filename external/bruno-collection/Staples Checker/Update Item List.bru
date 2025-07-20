@@ -1,0 +1,17 @@
+meta {
+  name: Update Item List
+  type: http
+  seq: 7
+}
+
+patch {
+  url: http://localhost:3000/item-lists/dad44adc-2b32-4106-83e2-244424eb3e1c/items/Garlic2
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "status": "Low"
+  }
+}

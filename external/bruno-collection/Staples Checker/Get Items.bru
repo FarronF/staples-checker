@@ -1,0 +1,21 @@
+meta {
+  name: Get Items
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:3000/item-lists/{{item-list-id}}/items
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "items": [
+      {
+        "name": "Garlic2"
+      }
+    ]
+  }
+}
