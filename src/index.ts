@@ -11,33 +11,33 @@ const app = express();
 app.use(express.json());
 const port = process.env.PORT || 3000;
 
-const client = new MongoClient('mongodb://localhost:27017');
+const client = new MongoClient(
+  process.env.MONGODB_URI || 'mongodb://mongodb:27017/staples-checker'
+);
 client
   .connect()
   .then(() => {
     console.log('Connected to MongoDB');
 
     const db = client.db('staples-checker');
-const itemListCollection = db.collection('item-lists');
+    const itemListCollection = db.collection('item-lists');
 
-const itemListRepository = new MongoItemListRepository(itemListCollection);
-const itemListService = new ItemListService(itemListRepository);
+    const itemListRepository = new MongoItemListRepository(itemListCollection);
+    const itemListService = new ItemListService(itemListRepository);
 
-app.get('/', (_req: Request, res: Response) => {
-  res.send('Hello, Express is installed!');
-});
+    app.get('/', (_req: Request, res: Response) => {
+      res.send('Hello, Express is installed!');
+    });
 
-app.use(
-  '/item-lists',
-  createItemListRouter(new ItemListController(itemListService))
-);
+    app.use(
+      '/item-lists',
+      createItemListRouter(new ItemListController(itemListService))
+    );
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
   })
   .catch((err) => {
     console.error('Failed to connect to MongoDB', err);
   });
-
-

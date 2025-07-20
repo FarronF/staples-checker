@@ -53,11 +53,60 @@ src/
 
 ### Prerequisites
 
-- Node.js (v18+)
+- Node.js (v20+)
 - MongoDB
 - npm or yarn
 
-### Installation
+### Quick Start with Docker (Recommended)
+
+The fastest way to get started is using Docker Compose:
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd staples-checker
+```
+
+2. Start the application with Docker Compose:
+
+```bash
+docker-compose up --build -d
+```
+
+This will:
+
+- Build the application Docker image
+- Start MongoDB in a container
+- Start the API server on port 3000
+- Run everything in the background (`-d` flag)
+
+3. Test the API:
+
+```bash
+curl http://localhost:3000
+# Should return: "Hello, Express is installed!"
+```
+
+4. View logs (optional):
+
+```bash
+docker-compose logs -f app
+```
+
+5. Stop the application:
+
+```bash
+docker-compose down
+```
+
+6. Stop and remove volumes (to reset database):
+
+```bash
+docker-compose down -v
+```
+
+### Manual Installation
 
 1. Clone the repository:
 
