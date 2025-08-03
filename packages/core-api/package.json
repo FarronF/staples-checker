@@ -1,5 +1,5 @@
 {
-  "name": "staples-checker",
+  "name": "@staples-checker/core-api",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -22,6 +22,7 @@
   "dependencies": {
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "dotenv": "^16.4.5",
     "express": "^5.1.0",
     "joi": "^17.13.3",
     "mongodb": "^6.17.0",

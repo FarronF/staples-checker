@@ -1,0 +1,52 @@
+{
+    "name": "staples-checker-monorepo",
+    "version": "1.0.0",
+    "description": "A RESTful API for managing item lists and tracking inventory status, with multi-platform chat integration",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "npm run build --workspaces",
+        "start": "npm run start --workspace=@staples-checker/core-api",
+        "dev": "npm run dev --workspace=@staples-checker/core-api",
+        "test": "npm run test --workspaces",
+        "test:coverage": "npm run test:coverage --workspaces",
+        "clean": "npm run clean --workspaces --if-present",
+        "lint": "npm run lint --workspaces --if-present",
+        "format": "npm run format --workspaces --if-present",
+        "docker:up": "docker-compose up --build -d",
+        "docker:down": "docker-compose down",
+        "docker:logs": "docker-compose logs -f",
+        "postinstall": "npm run build --workspaces --if-present"
+    },
+    "keywords": [
+        "rest-api",
+        "inventory-management",
+        "item-lists",
+        "nodejs",
+        "typescript",
+        "mongodb",
+        "express",
+        "clean-architecture",
+        "chat-integration"
+    ],
+    "author": "",
+    "license": "ISC",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/FarronF/staples-checker.git"
+    },
+    "bugs": {
+        "url": "https://github.com/FarronF/staples-checker/issues"
+    },
+    "homepage": "https://github.com/FarronF/staples-checker#readme",
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=8.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^24.0.13",
+        "typescript": "^5.8.3"
+    }
+}

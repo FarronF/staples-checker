@@ -29,8 +29,6 @@ npm run dev
 
 ## Architecture
 
-[Move your existing architecture documentation here]
-
 ## Testing
 
 ```bash
@@ -41,5 +39,3 @@ npm run test:integration
 ## Bruno API Testing
 
 Collection located at `external-tools/bruno-collection/Staples Checker/`
-
-[Keep your existing Bruno documentation here]
