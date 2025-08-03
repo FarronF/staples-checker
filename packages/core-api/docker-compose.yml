@@ -10,6 +10,8 @@ services:
       - NODE_ENV=production
     depends_on:
       - mongodb
+    networks:
+      - staples-network
 
   mongodb:
     image: mongo:7
@@ -19,6 +21,13 @@ services:
       - MONGO_INITDB_DATABASE=staples-checker
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - staples-network
+
+networks:
+  staples-network:
+    driver: bridge
 
 volumes:
   mongodb_data:
+    driver: local
