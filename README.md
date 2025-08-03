@@ -1,317 +1,196 @@
 # Staples Checker
 
-A RESTful API for managing item lists and tracking inventory status. Built with Node.js, Express, TypeScript, and MongoDB.
+A RESTful API for managing item lists and tracking inventory status, with multi-platform chat integration. Built with Node.js, Express, TypeScript, and MongoDB.
+
+## Architecture Overview
+
+This project uses a multi-package architecture:
+
+```
+staples-checker/
+├── packages/
+│   ├── core-api/          # Main REST API
+│   └── chat/              # Chat integrations (Not yet implemented)
+├── docker-compose.yml     # Service orchestration
+└── README.md             # This file
+```
 
 ## Features
 
 - **Item List Management**: Create, read, update, and delete item lists
 - **Item Operations**: Add items to lists, update status, delete items
 - **Status Filtering**: Filter items by status (Ok, Low, Out, Unknown)
+- **Chat Interfaces**: Natural language commands via Discord and Web UI
 - **HATEOAS Support**: Hypermedia-driven API with discoverable links
 - **Clean Architecture**: Separation of concerns with domain, application, and infrastructure layers
 - **Type Safety**: Full TypeScript implementation with validation
 
-## API Endpoints
-
-### Item Lists
-
-- `GET /item-lists/{id}` - Get item list by ID
-- `POST /item-lists` - Create new item list
-- `DELETE /item-lists/{id}` - Delete item list
-
-### Items
-
-- `GET /item-lists/{id}/items` - Get all items in a list
-- `GET /item-lists/{id}/items?statuses=Low,Out` - Filter items by status
-- `POST /item-lists/{id}/items` - Add items to list
-- `GET /item-lists/{id}/items/{itemName}` - Get specific item
-- `PATCH /item-lists/{id}/items/{itemName}` - Update item status
-- `DELETE /item-lists/{id}/items/{itemName}` - Delete item
-
-## Architecture
-
-This project follows Clean Architecture principles:
-
-```
-src/
-├── core/
-│   ├── application/     # Use cases and application services
-│   │   ├── item-list/   # Item list service
-│   │   └── repositories/ # Repository interfaces
-│   └── domain/          # Domain entities and business logic
-│       ├── item-list/   # Item list domain models
-│       └── errors/      # Domain exceptions
-├── infrastructure/     # External concerns (database, etc.)
-│   └── repositories/   # Repository implementations
-└── presentation/       # Controllers, DTOs, and routers
-    ├── controllers/    # HTTP controllers
-    ├── dtos/          # Data transfer objects
-    └── routers/       # Express route definitions
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v20+)
-- MongoDB
-- npm or yarn
-
-### Quick Start with Docker (Recommended)
+## Quick Start (Recommended)
 
 The fastest way to get started is using Docker Compose:
 
-1. Clone the repository:
+1. **Clone the repository:**
 
-```bash
-git clone <repository-url>
-cd staples-checker
-```
+   ```bash
+   git clone <repository-url>
+   cd staples-checker
+   ```
 
-2. Start the application with Docker Compose:
-
-```bash
-docker-compose up --build -d
-```
-
-This will:
-
-- Build the application Docker image
-- Start MongoDB in a container
-- Start the API server on port 3000
-- Run everything in the background (`-d` flag)
-
-3. Test the API:
-
-```bash
-curl http://localhost:3000
-# Should return: "Hello, Express is installed!"
-```
-
-4. View logs (optional):
-
-```bash
-docker-compose logs -f app
-```
-
-5. Stop the application:
-
-```bash
-docker-compose down
-```
-
-6. Stop and remove volumes (to reset database):
-
-```bash
-docker-compose down -v
-```
-
-### Manual Installation
-
-1. Clone the repository:
-
-```bash
-git clone <repository-url>
-cd staples-checker
-```
-
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Start MongoDB locally or configure connection string in `src/index.ts`
-
-4. Run the application:
-
-```bash
-npm run dev
-```
-
-The API will be available at `http://localhost:3000`
-
-## Usage Examples
-
-### Create an Item List
-
-```bash
-curl -X POST http://localhost:3000/item-lists \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Kitchen Supplies",
-    "description": "Items needed for the kitchen"
-  }'
-```
-
-### Add Items to List
-
-```bash
-curl -X POST http://localhost:3000/item-lists/{listId}/items \
-  -H "Content-Type: application/json" \
-  -d '{
-    "items": [
-      {"name": "Milk", "description": "Whole milk"},
-      {"name": "Bread", "description": "Whole wheat bread"}
-    ]
-  }'
-```
-
-### Update Item Status
-
-```bash
-curl -X PATCH http://localhost:3000/item-lists/{listId}/items/Milk \
-  -H "Content-Type: application/json" \
-  -d '{"status": "Low"}'
-```
-
-### Filter Items by Status
-
-```bash
-curl "http://localhost:3000/item-lists/{listId}/items?statuses=Low,Out"
-```
-
-## Item Status Values
-
-- `Ok` - Item is sufficiently stocked
-- `Low` - Item is running low
-- `Out` - Item is out of stock
-- `Unknown` - Status is not determined
-
-## HATEOAS Links
-
-The API includes hypermedia links to help with navigation:
-
-```json
-{
-  "id": "123",
-  "name": "Kitchen Supplies",
-  "links": [
-    {
-      "rel": "self",
-      "href": "/item-lists/123",
-      "method": "GET"
-    },
-    {
-      "rel": "add-item",
-      "href": "/item-lists/123/items",
-      "method": "POST"
-    },
-    {
-      "rel": "filter-low-stock",
-      "href": "/item-lists/123/items?statuses=Low",
-      "method": "GET"
-    }
-  ]
-}
-```
-
-## Testing
-
-### Unit and Integration Tests
-
-Run the test suite:
-
-```bash
-npm test
-```
-
-Run integration tests:
-
-```bash
-npm run test:integration
-```
-
-### API Testing with Bruno
-
-This repository includes a Bruno collection for testing the API endpoints. Bruno is a fast and lightweight API client that can be used as an alternative to Postman.
-
-#### Setup Bruno
-
-1. Install Bruno from [https://www.usebruno.com/](https://www.usebruno.com/)
-
-2. Open Bruno and import the collection:
-   - Click "Open Collection"
-   - Navigate to `external/bruno-collection/Staples Checker`
-   - Select the folder to import the collection
-
-#### Using the Bruno Collection
-
-The collection includes tests for all major API endpoints:
-
-- **Create Item List** - Creates a new item list and stores the ID in a variable
-- **Get Item List** - Retrieves an item list by ID
-- **Delete Item List** - Deletes an item list
-- **Add Item** - Adds items to a list
-- **Get Items** - Retrieves all items from a list
-- **Filter Items** - Filters items by status (Low, Out)
-- **Update Item List** - Updates an item's status
-
-#### Running the Tests
-
-1. Start your application:
+2. **Start all services:**
 
    ```bash
    docker-compose up --build -d
    ```
 
-2. In Bruno, run the requests in sequence:
-   - Start with "Create Item List" to generate an `item-list-id` variable
-   - The other requests will use this variable automatically
-   - You can run individual requests or the entire collection
+   This will start:
 
-#### Variables
+   - MongoDB database
+   - Core API on port 3000
+   - Chat interfaces (when configured)
 
-The Bruno collection uses the following variables:
+3. **Test the API:**
 
-- `item-list-id` - Automatically set when creating an item list
-- Base URL is set to `http://localhost:3000`
+   ```bash
+   curl http://localhost:3000
+   # Should return: "Hello, Express is installed!"
+   ```
 
-#### Collection Structure
+4. **Stop the application:**
+   ```bash
+   docker-compose down
+   ```
 
+## Development Setup
+
+### Core API Only
+
+If you only want to work on the core API:
+
+```bash
+cd packages/core-api
+npm install
+npm run dev
 ```
-external/bruno-collection/Staples Checker/
-├── bruno.json              # Collection configuration
-├── Create Item List.bru     # POST /item-lists
-├── Get Item List.bru        # GET /item-lists/{id}
-├── Delete Item List.bru     # DELETE /item-lists/{id}
-├── Add Item.bru             # POST /item-lists/{id}/items
-├── Get Items.bru            # GET /item-lists/{id}/items
-├── Filter Items.bru         # GET /item-lists/{id}/items?statuses=Low,Out
-└── Update Item List.bru     # PATCH /item-lists/{id}/items/{itemName}
+
+### Full Workspace
+
+For working with multiple packages:
+
+```bash
+# Install all dependencies
+npm install
+
+# Run specific package
+npm run dev:core-api
+
+# Run tests across all packages
+npm test
 ```
 
-## Development
+## API Documentation
 
-### Scripts
+The core API is located in `packages/core-api/`. See the [Core API README](packages/core-api/README.md) for detailed API documentation.
 
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build TypeScript to JavaScript
-- `npm run start` - Start production server
-- `npm test` - Run unit tests
-- `npm run test:watch` - Run tests in watch mode
+### Quick API Reference
 
-### Code Structure
+- `GET /item-lists/{id}` - Get item list by ID
+- `POST /item-lists` - Create new item list
+- `POST /item-lists/{id}/items` - Add items to list
+- `PATCH /item-lists/{id}/items/{itemName}` - Update item status
+- `GET /item-lists/{id}/items?statuses=Low,Out` - Filter items by status
 
-- **Commands**: Use DTOs for input validation and commands for business operations
-- **Queries**: Separate DTOs for query parameters and responses
-- **Validation**: Uses `class-validator` for request validation
-- **Mapping**: Uses `class-transformer` for object mapping
-- **Error Handling**: Custom domain exceptions with proper HTTP status codes
+## Chat Integration
 
-## Design Principles
+Natural language commands are supported through:
 
-- **CQS Compliance**: Commands return minimal data (IDs + HATEOAS links)
-- **RESTful Design**: Proper HTTP methods and status codes
-- **Type Safety**: Full TypeScript coverage with strict typing
-- **Clean Architecture**: Clear separation between layers
-- **Domain-Driven Design**: Rich domain models with business logic
+- **Web Chat**: Built-in web interface at `/chat`
+- **Discord Bot**: Send commands via Discord (configuration required)
+
+Example commands:
+
+- "Add milk to my shopping list"
+- "Mark bread as low stock"
+- "Show me items that are out of stock"
+
+## Testing
+
+### API Testing with Bruno
+
+Bruno collection available at `packages/core-api/external-tools/bruno-collection/`
+
+### Running Tests
+
+```bash
+# All packages
+npm test
+
+# Specific package
+npm run test --workspace=core-api
+```
+
+## Package Structure
+
+### Core API (`packages/core-api/`)
+
+RESTful API following Clean Architecture:
+
+- **Domain**: Business entities and rules
+- **Application**: Use cases and services
+- **Infrastructure**: Database and external services
+- **Presentation**: Controllers, DTOs, and routes
+
+### Chat Service (`packages/chat/`) - _Coming Soon_
+
+Multi-platform chat integration:
+
+- Discord bot integration
+- Web chat interface
+- Natural language processing
+
+## Environment Configuration
+
+### Docker Environment
+
+Configure via `docker-compose.yml` environment section:
+
+```yaml
+environment:
+  - MONGODB_URI=mongodb://mongodb:27017/staples-checker
+  - NODE_ENV=production
+  - DISCORD_TOKEN=${DISCORD_TOKEN} # Optional
+```
+
+### Local Development
+
+Create `.env` files in individual packages as needed.
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
+3. Work in the appropriate package directory
 4. Add tests for new functionality
-5. Ensure all tests pass
+5. Ensure all packages build and test successfully
 6. Submit a pull request
+
+## Package Development
+
+### Adding a New Package
+
+1. Create new directory in `packages/`
+2. Add to workspace in root `package.json`
+3. Update Docker Compose if needed
+4. Document in this README
+
+### Working with Workspaces
+
+```bash
+# Add dependency to specific package
+npm install express --workspace=core-api
+
+# Run command in specific package
+npm run build --workspace=chat
+
+# Run command in all packages
+npm run test --workspaces
+```

@@ -1,22 +1,46 @@
 services:
-  app:
-    build: .
+  # Core API with MongoDB
+  api:
+    build:
+      context: .
+      dockerfile: packages/core-api/Dockerfile
     ports:
       - '3000:3000'
     environment:
-      - NODE_ENV=production
       - MONGODB_URI=mongodb://mongodb:27017/staples-checker
+      - NODE_ENV=production
     depends_on:
       - mongodb
-    restart: unless-stopped
+    networks:
+      - staples-network
 
   mongodb:
-    image: mongo:6.0
+    image: mongo:7
     ports:
       - '27017:27017'
+    environment:
+      - MONGO_INITDB_DATABASE=staples-checker
     volumes:
       - mongodb_data:/data/db
-    restart: unless-stopped
+    networks:
+      - staples-network
+
+  # Future: Chat service
+  # chat:
+  #   build:
+  #     context: ./packages/chat
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - API_URL=http://api:3000
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - staples-network
+
+networks:
+  staples-network:
+    driver: bridge
 
 volumes:
   mongodb_data:
+    driver: local

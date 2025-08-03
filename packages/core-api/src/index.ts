@@ -12,7 +12,7 @@ app.use(express.json());
 const port = process.env.PORT || 3000;
 
 const client = new MongoClient(
-  process.env.MONGODB_URI || 'mongodb://mongodb:27017/staples-checker'
+  process.env.MONGODB_URI || 'mongodb://localhost:27017/staples-checker'
 );
 client
   .connect()
