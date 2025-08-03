@@ -8,6 +8,11 @@ services:
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/staples-checker
       - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=7d
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - DISCORD_REDIRECT_URI=${DISCORD_REDIRECT_URI}
     depends_on:
       - mongodb
     networks:

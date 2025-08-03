@@ -13,6 +13,9 @@ export class ItemListDocument {
   description!: string;
 
   @Expose()
+  creatorId!: string;
+
+  @Expose()
   items!: ItemDocument[];
 
   @Expose()

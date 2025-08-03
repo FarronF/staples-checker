@@ -10,6 +10,8 @@ export class ItemList {
   name!: string;
   @Expose()
   description?: string;
+  @Expose()
+  creatorId!: string;
 
   @Type(() => Item)
   @Expose()

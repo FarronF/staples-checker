@@ -4,6 +4,8 @@ import 'reflect-metadata';
 import { Request, Response } from 'express';
 import { MongoClient } from 'mongodb';
 import { createItemListRouter } from './presentation/routers/item-list-router';
+import { authRouter } from './presentation/routers/auth-router';
+import { conditionalAuth } from './presentation/middleware/auth.middleware';
 import { MongoItemListRepository } from './infrastructure/repositories/MongoItemListRepository';
 import { ItemListController } from './presentation/controllers/item-list-controller';
 import { ItemListService } from './core/application/item-list/ItemListService';
@@ -30,8 +32,14 @@ client
       res.send('Hello, Express is installed!');
     });
 
+    app.use('/auth', authRouter);
+
+    // Item list routes with conditional authentication
+    // If auth is enabled (OAuth configured), requires authentication
+    // If auth is disabled, allows access without authentication
     app.use(
       '/item-lists',
+      conditionalAuth, // Blocks access when auth is enabled but user not authenticated
       createItemListRouter(new ItemListController(itemListService))
     );
 
