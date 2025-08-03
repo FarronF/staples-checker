@@ -60,6 +60,32 @@ export function createItemListRouter(
     res.status(204).send();
   });
 
+  router.post('/:id/chat', async (req: Request, res: Response) => {
+    try {
+      const { message } = req.body;
+
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      const result = await itemListController.processChatCommand(
+        req.params.id,
+        message
+      );
+
+      res.json({
+        success: true,
+        message: result,
+      });
+    } catch (error) {
+      return handleControllerError(
+        error,
+        res,
+        'Failed to process chat command'
+      );
+    }
+  });
+
   router.use('/:listId/items', createItemsRouter(itemListController));
 
   return router;
@@ -196,12 +222,12 @@ function createItemsRouter(itemListController: ItemListController) {
       res: Response
     ) => {
       try {
-        const deletedItem = await itemListController.deleteItemFromList(
+        const deletedItems = await itemListController.deleteItemsFromList(
           req.params.listId,
-          decodeURIComponent(req.params.itemName)
+          [decodeURIComponent(req.params.itemName)]
         );
 
-        if (!deletedItem) {
+        if (!deletedItems) {
           return res.status(404).send('Item not found');
         }
 

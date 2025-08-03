@@ -22,6 +22,7 @@ describe('ItemListService', () => {
       addItemsToItemList: jest.fn(),
       updateItemStatusInItemList: jest.fn(),
       deleteItemFromList: jest.fn(),
+      deleteItemsFromList: jest.fn(),
       getItemsByStatus: jest.fn(),
       addParticipantToItemList: jest.fn(),
       updateParticipantRoleInItemList: jest.fn(),
@@ -145,16 +146,18 @@ describe('ItemListService', () => {
     });
   });
 
-  describe('deleteItemFromList', () => {
-    it('should delete item successfully', async () => {
-      mockRepository.deleteItemFromList.mockResolvedValue(testItem);
+  describe('deleteItemsFromList', () => {
+    it('should delete items successfully', async () => {
+      mockRepository.deleteItemsFromList.mockResolvedValue([testItem]);
 
-      const result = await service.deleteItemFromList('test-id', 'Test Item');
+      const result = await service.deleteItemsFromList('test-id', [
+        'Test Item',
+      ]);
 
-      expect(result).toBe(testItem);
-      expect(mockRepository.deleteItemFromList).toHaveBeenCalledWith(
+      expect(result).toStrictEqual([testItem]);
+      expect(mockRepository.deleteItemsFromList).toHaveBeenCalledWith(
         'test-id',
-        'Test Item'
+        ['Test Item']
       );
     });
   });

@@ -30,8 +30,13 @@ export interface ItemListRepository {
 
   deleteItemFromList(
     itemListId: string,
-    itemName: string
+    itemNames: string
   ): Promise<Item | null>;
+
+  deleteItemsFromList(
+    itemListId: string,
+    itemNames: string[]
+  ): Promise<Item[] | null>;
 
   // Participant operations
   addParticipantToItemList(

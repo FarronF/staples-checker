@@ -15,6 +15,7 @@ import { ItemDocument } from './documents/item.document';
 import { NotFoundError } from '../../core/domain/errors/not-found-error';
 import { validateSync } from 'class-validator';
 import { UpdateItemListCommand } from '../../core/application/item-list/commands/update-item-list.command';
+import { ItemStatusChange } from '../../core/domain/item-list/item-status-change';
 
 export class MongoItemListRepository implements ItemListRepository {
   constructor(private readonly collection: Collection) {}
@@ -163,97 +164,151 @@ export class MongoItemListRepository implements ItemListRepository {
 
   async updateItemStatusInItemList(
     itemListId: string,
-    itemName: string, // Using name as unique identifier
+    itemName: string,
     status: ItemStatus
   ): Promise<Item> {
+    const updatedItems = await this.updateItemsStatusInItemList(itemListId, [
+      { itemName, status },
+    ]);
+    return updatedItems[0];
+  }
+
+  async updateItemsStatusInItemList(
+    itemListId: string,
+    changes: ItemStatusChange[]
+  ): Promise<Item[]> {
     const itemListDocument = await this.collection.findOne({ id: itemListId });
     if (!itemListDocument) {
       throw new NotFoundError('Item list not found');
     }
 
-    const itemIndex = itemListDocument.items?.findIndex(
-      (item: any) => item.name === itemName
-    );
-    if (itemIndex === -1 || itemIndex === undefined) {
-      throw new NotFoundError('Item not found in list');
+    if (!changes || changes.length === 0) {
+      return [];
     }
 
     const updatedAt = new Date();
+    const updatedItems: Item[] = [];
 
-    await this.collection.updateOne(
-      { id: itemListId, 'items.name': itemName },
-      {
-        $set: {
-          'items.$.status': status,
-          'items.$.updatedAt': updatedAt,
-          updatedAt: updatedAt,
-        },
-      }
-    );
-
-    // Return the updated item
-    const updatedItem = plainToInstance(
-      Item,
-      {
-        ...itemListDocument.items[itemIndex],
-        status: status,
-        updatedAt: updatedAt,
-      },
-      { excludeExtraneousValues: true }
-    );
-
-    const itemErrors = validateSync(updatedItem);
-    if (itemErrors.length > 0) {
-      throw new Error(
-        'Updated item validation failed: ' + JSON.stringify(itemErrors)
+    // Validate all items exist before updating
+    for (const update of changes) {
+      const itemIndex = itemListDocument.items?.findIndex(
+        (item: any) => item.name === update.itemName
       );
+      if (itemIndex === -1 || itemIndex === undefined) {
+        throw new NotFoundError(`Item '${update.itemName}' not found in list`);
+      }
     }
 
-    return updatedItem;
+    // Perform bulk update operations
+    const bulkOps = changes.map((update) => ({
+      updateOne: {
+        filter: { id: itemListId, 'items.name': update.itemName },
+        update: {
+          $set: {
+            'items.$.status': update.status,
+            'items.$.updatedAt': updatedAt,
+            updatedAt: updatedAt,
+          },
+        },
+      },
+    }));
+
+    await this.collection.bulkWrite(bulkOps);
+
+    // Create updated item instances for return
+    for (const update of changes) {
+      const item = itemListDocument.items.find(
+        (item: any) => item.name === update.itemName
+      );
+
+      const updatedItem = plainToInstance(
+        Item,
+        {
+          ...item,
+          status: update.status,
+          updatedAt: updatedAt,
+        },
+        { excludeExtraneousValues: true }
+      );
+
+      const itemErrors = validateSync(updatedItem);
+      if (itemErrors.length > 0) {
+        throw new Error(
+          `Updated item validation failed for ${
+            update.itemName
+          }: ${JSON.stringify(itemErrors)}`
+        );
+      }
+
+      updatedItems.push(updatedItem);
+    }
+
+    return updatedItems;
   }
 
   async deleteItemFromList(
     itemListId: string,
     itemName: string
   ): Promise<Item | null> {
+    const deletedItems = await this.deleteItemsFromList(itemListId, [itemName]);
+    return deletedItems.length > 0 ? deletedItems[0] : null;
+  }
+
+  async deleteItemsFromList(
+    itemListId: string,
+    itemNames: string[]
+  ): Promise<Item[]> {
     const itemListDocument = await this.collection.findOne({ id: itemListId });
     if (!itemListDocument) {
       throw new NotFoundError('Item list not found');
     }
 
-    const itemIndex = itemListDocument.items?.findIndex(
-      (item: any) => item.name === itemName
-    );
-    if (itemIndex === -1 || itemIndex === undefined) {
-      return null; // Item not found
+    if (!itemNames || itemNames.length === 0) {
+      return [];
     }
 
-    // Get the item to return before deletion
-    const itemToDelete = plainToInstance(
-      Item,
-      itemListDocument.items[itemIndex],
-      { excludeExtraneousValues: true }
-    );
+    // Find items to delete
+    const itemsToDelete: Item[] = [];
+    if (itemListDocument.items) {
+      for (const itemName of itemNames) {
+        const item = itemListDocument.items.find(
+          (item: any) => item.name === itemName
+        );
+        if (item) {
+          const itemInstance = plainToInstance(Item, item, {
+            excludeExtraneousValues: true,
+          });
+
+          const itemErrors = validateSync(itemInstance);
+          if (itemErrors.length > 0) {
+            throw new Error(
+              `Item validation failed for ${itemName}: ${JSON.stringify(
+                itemErrors
+              )}`
+            );
+          }
+
+          itemsToDelete.push(itemInstance);
+        }
+      }
+    }
+
+    if (itemsToDelete.length === 0) {
+      return []; // No items found to delete
+    }
 
     const updatedAt = new Date();
 
-    // Remove the item from the array
+    // Remove the items from the array using $in operator
     await this.collection.updateOne(
       { id: itemListId },
       {
-        $pull: { items: { name: itemName } } as any,
+        $pull: { items: { name: { $in: itemNames } } } as any,
         $set: { updatedAt: updatedAt },
       }
     );
 
-    const itemErrors = validateSync(itemToDelete);
-    if (itemErrors.length > 0) {
-      throw new Error(
-        'Deleted item validation failed: ' + JSON.stringify(itemErrors)
-      );
-    }
-
-    return itemToDelete;
+    return itemsToDelete;
   }
 
   async getItemsByStatus(

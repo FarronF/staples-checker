@@ -6,13 +6,14 @@ import { createItemListRouter } from './presentation/routers/item-list-router';
 import { MongoItemListRepository } from './infrastructure/repositories/MongoItemListRepository';
 import { ItemListController } from './presentation/controllers/item-list-controller';
 import { ItemListService } from './core/application/item-list/ItemListService';
+import { CommandParser } from './core/application/chat/command-parser';
 
 const app = express();
 app.use(express.json());
 const port = process.env.PORT || 3000;
 
 const client = new MongoClient(
-  process.env.MONGODB_URI || 'mongodb://mongodb:27017/staples-checker'
+  process.env.MONGODB_URI || 'mongodb://localhost:27017/staples-checker'
 );
 client
   .connect()
@@ -24,6 +25,7 @@ client
 
     const itemListRepository = new MongoItemListRepository(itemListCollection);
     const itemListService = new ItemListService(itemListRepository);
+    const commandParser = new CommandParser();
 
     app.get('/', (_req: Request, res: Response) => {
       res.send('Hello, Express is installed!');
@@ -31,7 +33,9 @@ client
 
     app.use(
       '/item-lists',
-      createItemListRouter(new ItemListController(itemListService))
+      createItemListRouter(
+        new ItemListController(itemListService, commandParser)
+      )
     );
 
     app.listen(port, () => {

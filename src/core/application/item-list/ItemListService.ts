@@ -50,11 +50,11 @@ export class ItemListService {
     return this.repo.updateItemStatusInItemList(itemListId, itemName, status);
   }
 
-  async deleteItemFromList(
+  async deleteItemsFromList(
     itemListId: string,
-    itemName: string
-  ): Promise<Item | null> {
-    return this.repo.deleteItemFromList(itemListId, itemName);
+    itemNames: string[]
+  ): Promise<Item[] | null> {
+    return this.repo.deleteItemsFromList(itemListId, itemNames);
   }
 
   async getItemsByStatus(

@@ -1,0 +1,17 @@
+meta {
+  name: Chat
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:3000/item-lists/62aa2adc-b436-49ad-80ac-7d83ef491d0f/chat
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "message": "add ham"
+  }
+}
